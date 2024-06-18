@@ -27,7 +27,7 @@ app.get('/api/hello', function(req, res) {
 let urlObj = [];
 
 app.post('/api/shorturl', function(req, res) {
-  const urlRegex = /^(http:\/\/www\.|https:\/\/www\.)\w*\.(com|org)$/;
+  const urlRegex = /^(http:\/\/www\.|https:\/\/www\.)\w*\.(com)$/;
   
   if (urlRegex.test(req.body.url)) {
     const newUrl = new URL(req.body.url).hostname;
@@ -52,6 +52,9 @@ app.post('/api/shorturl', function(req, res) {
       }
     });  
   } 
+  else{
+    res.json({ error: 'invalid url' })
+  }
   
 });
 
