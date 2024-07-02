@@ -24,7 +24,7 @@ app.get('/api/hello', function(req, res) {
 let urlObj = [];
 
 app.post('/api/shorturl', function(req, res) {
-  const urlRegex = /^(http:\/\/www\.|https:\/\/www\.)\w*\.(com)$/;
+  const urlRegex =/https:\/\/www.|http:\/\/www./g;
   
   if (urlRegex.test(req.body.url)) {
     const newUrl = new URL(req.body.url).hostname;
