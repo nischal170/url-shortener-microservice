@@ -60,8 +60,7 @@ app.post('/api/shorturl', function(req, res) {
 
 app.get('/api/shorturl/:short_url', function(req, res) {
   const linkNo = parseInt(req.params.short_url);
-  // Find the corresponding original_url based on short_url
-  const foundObj = urlObj.find(obj => obj.short_url === linkNo);
+  foundObj=isSameValuePresent(req.params.short_url, linkNo);
   if (foundObj) {
     res.redirect(foundObj.original_url );
   } else {
