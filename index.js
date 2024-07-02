@@ -27,42 +27,37 @@ app.get('/api/hello', function(req, res) {
 let urlObj = [];
 
 app.post('/api/shorturl', function(req, res) {
-  const urlRegex = /^(http:\/\/www\.|https:\/\/www\.)\w*\.(com)$/;
+  const urlRegex = /^(https?:\/\/)([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
   
   if (urlRegex.test(req.body.url)) {
     const newUrl = new URL(req.body.url).hostname;
     dns.lookup(newUrl, (error) => {
       if (error) {
-        res.json({ error: 'Invalid Hostname' });
-      }
-      else{
-      let shortUrl=isSameValuePresent(req.body.url, urlObj)
-        if (shortUrl) {
-        res.json({ original_url: req.body.url, short_url: shortUrl });
-        
+        return res.json({ error: 'Invalid Hostname' });
       } else {
-        let rand = Math.floor(Math.random() * 100000);
-        urlObj.push({
-          original_url: req.body.url,
-          short_url: rand
-        });
-        res.json({ original_url: req.body.url, short_url: rand });
-      }
-        
+        let shortUrl = findOriginalUrl(req.body.url, urlObj);
+        if (shortUrl) {
+          res.json({ original_url: req.body.url, short_url: shortUrl });
+        } else {
+          let rand = Math.floor(Math.random() * 100000);
+          urlObj.push({
+            original_url: req.body.url,
+            short_url: rand
+          });
+          res.json({ original_url: req.body.url, short_url: rand });
+        }
       }
     });  
-  } 
-  else{
-    res.json({ error: 'invalid url' })
+  } else {
+    res.json({ error: 'invalid url' });
   }
-  
 });
 
 app.get('/api/shorturl/:short_url', function(req, res) {
   const linkNo = parseInt(req.params.short_url);
-  foundObj=isSameValuePresent(req.params.short_url, linkNo);
+  const foundObj = findShortUrl(linkNo, urlObj);
   if (foundObj) {
-    res.redirect(foundObj.original_url );
+    res.redirect(foundObj.original_url);
   } else {
     res.json({ error: 'short_url not found' });
   }
@@ -72,7 +67,12 @@ app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
 
-function isSameValuePresent(reqUrl, urlObj) {
+function findOriginalUrl(reqUrl, urlObj) {
   const foundObj = urlObj.find(obj => obj.original_url === reqUrl);
   return foundObj ? foundObj.short_url : false;
+}
+
+function findShortUrl(shortUrl, urlObj) {
+  const foundObj = urlObj.find(obj => obj.short_url === shortUrl);
+  return foundObj ? foundObj : false;
 }
